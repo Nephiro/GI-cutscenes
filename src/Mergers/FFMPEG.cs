@@ -102,6 +102,8 @@ namespace GICutscenes.Mergers
         public void Merge()
         {
             _command += string.Join(" ", _inputOptions) + string.Join(" ", _mapOptions) + string.Join(" ", _metadataOptions);
+			if (_subsCount > 0)
+				_command += " -disposition:s:0 default";
             _command += $" -c copy \"{_output}\"";
             //Console.WriteLine(_ffmpeg + _command);
             Process process = Process.Start(_ffmpeg, _command);

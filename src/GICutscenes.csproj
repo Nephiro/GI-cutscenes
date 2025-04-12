@@ -3,6 +3,8 @@
 	<PropertyGroup>
 		<Version>0.5.0</Version>
 		<OutputType>Exe</OutputType>
+		<PublishSingleFile>true</PublishSingleFile>
+		<SelfContained>true</SelfContained>
 		<TargetFramework>net6.0</TargetFramework>
 		<!--<RuntimeIdentifier>win-x64</RuntimeIdentifier>-->
 		<PublishTrimmed>true</PublishTrimmed>

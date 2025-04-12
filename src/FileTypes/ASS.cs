@@ -120,28 +120,49 @@ namespace GICutscenes.FileTypes
         }
 
         public static string? FindSubtitles(string basename, string subsFolder)
-        {
-            // Hardcoded match fixes, as there is simply no way to deduce it
-            basename = basename switch
-            {
-                "Cs_4131904_HaiDaoChuXian_Boy" => "Cs_Activity_4001103_Summertime_Boy",
-                "Cs_4131904_HaiDaoChuXian_Girl" => "Cs_Activity_4001103_Summertime_Girl",
-                "Cs_200211_WanYeXianVideo" => "Cs_DQAQ200211_WanYeXianVideo",
-                _ => basename
-            };
+		{
+			// Hardcoded match fixes, as there is simply no way to deduce it
+			basename = basename switch
+			{
+				"Cs_4131904_HaiDaoChuXian_Boy" => "Cs_Activity_4001103_Summertime_Boy",
+				"Cs_4131904_HaiDaoChuXian_Girl" => "Cs_Activity_4001103_Summertime_Girl",
+				"Cs_200211_WanYeXianVideo" => "Cs_DQAQ200211_WanYeXianVideo",
+				_ => basename
+			};
 
-            string pathAttempt = Path.Combine(Path.GetFullPath(subsFolder), "EN"); // Taking the EN folder for instance, could be any of them...
-            string[] search = Directory.GetFiles(pathAttempt, basename + "_EN.*").Select(name => Path.GetFileNameWithoutExtension(name)).Distinct().ToArray();
-            if (search.Length == 1) // If the subtitle file is exactly the same
-                return search[0][..^3];  // Removing the suffix "_EN.ext"
+			// Get the full path of the subtitle folder
+			string fullSubsFolder = Path.GetFullPath(subsFolder);
+			
+			// Get the first directory in the subtitles folder
+			string[] languageFolders = Directory.GetDirectories(fullSubsFolder);
+			if (languageFolders.Length == 0)
+				return null; // No language folders found
+				
+			string langFolder = languageFolders[0];
+			string langCode = Path.GetFileName(langFolder); // Extract language code from folder name
+			
+			// Try to find exact subtitle match
+			string[] search = Directory.GetFiles(langFolder, basename + "_" + langCode + ".*")
+				.Select(name => Path.GetFileNameWithoutExtension(name))
+				.Distinct()
+				.ToArray();
+				
+			if (search.Length == 1) // If the subtitle file is exactly the same
+				return search[0][..^(langCode.Length + 1)];  // Removing the suffix "_LANG.ext"
 
-            // In case the subtitles are the same regardless of the Traveler's gender
-            search = Directory.GetFiles(pathAttempt, basename.Replace("_Boy", "").Replace("_Girl", "") + "_EN.*").Select(name => Path.GetFileNameWithoutExtension(name)).Distinct().ToArray();
-            if (search.Length == 1)
-                return search[0][..^3];
-            // Maybe more cases will be needed to fix this
-            return null;
-        }
+			// In case the subtitles are the same regardless of the Traveler's gender
+			search = Directory.GetFiles(langFolder, 
+					basename.Replace("_Boy", "").Replace("_Girl", "") + "_" + langCode + ".*")
+				.Select(name => Path.GetFileNameWithoutExtension(name))
+				.Distinct()
+				.ToArray();
+				
+			if (search.Length == 1)
+				return search[0][..^(langCode.Length + 1)];
+				
+			// Maybe more cases will be needed to fix this
+			return null;
+		}
 
         //public static void ConvertAllSrt(string subsFolder)
         //{
